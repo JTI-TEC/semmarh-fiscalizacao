@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://script.google.com https://*.googleusercontent.com https://brasilapi.com.br https://api.allorigins.win; object-src 'self' blob:; frame-src 'self' blob:; base-uri 'self'; form-action 'none'">
+  <title>SEMMARH — Fiscalização</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="stylesheet" href="css/style.css?v=1">
+</head>
+<body>
+
+  <!-- ── LOGIN ── -->
+  <div id="tela-login">
+    <div class="caixa">
+      <img src="assets/logo.png" alt="SEMMARH" style="display:block;width:110px;height:auto;margin:0 auto 12px;">
+      <h1>SEMMARH — Fiscalização</h1>
+      <p class="sub">Prefeitura Municipal de Imperatriz</p>
+      <div id="erroLogin"></div>
+      <div class="campo"><label>Usuário</label><input id="inputUsername" autocomplete="username" autocapitalize="none" onkeydown="if(event.key==='Enter'){fazerLogin();}"></div>
+      <div class="campo"><label>Senha</label><input id="inputSenha" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter'){fazerLogin();}"></div>
+      <button class="entrar" id="btnEntrar" onclick="fazerLogin()">Entrar</button>
+      <p id="statusServidor" class="status-servidor">Verificando servidor...</p>
+    </div>
+  </div>
+
+  <!-- ── SISTEMA ── -->
+  <div id="app">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <img src="assets/logo.png" alt="SEMMARH">
+          <div><h1>SEMMARH</h1><p>Fiscalização</p></div>
+        </div>
+        <nav class="sidebar-nav">
+          <button class="ativo" data-pagina="inicio" onclick="mostrarPagina('inicio')">🏠 Início</button>
+          <button data-pagina="notificacao" onclick="mostrarPagina('notificacao')">📋 Notificações</button>
+          <button data-pagina="historico" onclick="mostrarPagina('historico')">📖 Histórico</button>
+          <button data-pagina="cadastros" data-modulo="cadastros" onclick="mostrarPagina('cadastros')">🏢 Cadastros</button>
+          <button data-pagina="comparecimento" data-modulo="comparecimento" onclick="mostrarPagina('comparecimento')">🖊️ Comparecimento</button>
+          <button data-pagina="admin" data-somente-admin onclick="mostrarPagina('admin')">⚙️ Admin</button>
+        </nav>
+        <div class="sidebar-user">
+          <div id="nomeUsuario">Usuário</div>
+          <div class="sidebar-user-botoes">
+            <button onclick="abrirModalSenha()">Alterar senha</button>
+            <button onclick="sair()">Sair</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="conteudo-principal">
+    <section id="pagina-inicio" class="pagina ativa">
+      <div class="inicio-boas-vindas">
+        <div>
+          <p class="inicio-mini">Bem-vindo(a),</p>
+          <h2 id="inicioNomeUsuario">Usuário</h2>
+          <p class="inicio-data" id="inicioData">—</p>
+        </div>
+        <div class="inicio-calendario-icon">📅</div>
+      </div>
+
+      <div class="inicio-card" data-modulo="agenda">
+        <h2>📅 Agenda</h2>
+        <div class="agenda-form">
+          <input type="hidden" id="agendaIdEditando">
+          <div class="agenda-form-linha">
+            <input type="date" id="agendaData">
+            <input type="time" id="agendaHorario">
+          </div>
+          <input type="text" id="agendaDescricao" placeholder="Compromisso, lembrete ou anotação...">
+          <div class="botoes-form" style="margin-top:8px;">
+            <button class="inicio-acao-primaria" style="border:none;border-radius:8px;padding:10px;cursor:pointer;font-size:13px;" onclick="salvarCompromissoUI()" id="btnSalvarAgenda">Adicionar</button>
+            <button class="outline" style="border-radius:8px;padding:10px;cursor:pointer;font-size:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#e6f4ec;" onclick="limparFormAgenda()">Limpar</button>
+          </div>
+        </div>
+        <div id="listaAgenda" class="vazio" style="margin-top:12px;">Carregando...</div>
+      </div>
+
+      <div class="inicio-card" data-modulo="acoesRapidas">
+        <h2>Ações Rápidas</h2>
+        <div class="inicio-acoes">
+          <button class="inicio-acao-btn inicio-acao-primaria" onclick="mostrarPagina('notificacao')"><span>➕</span>Nova Notificação</button>
+          <button class="inicio-acao-btn" onclick="mostrarPagina('historico')"><span>📖</span>Ver Histórico</button>
+          <button class="inicio-acao-btn" data-modulo="comparecimento" onclick="mostrarPagina('comparecimento')"><span>🖊️</span>Comparecimento</button>
+          <button class="inicio-acao-btn" data-somente-admin onclick="mostrarPagina('admin')"><span>⚙️</span>Painel Admin</button>
+        </div>
+      </div>
+
+      <div class="inicio-card" data-modulo="ultimasNotificacoes">
+        <h2>Últimas Notificações</h2>
+        <div id="ultimasNotificacoes" class="vazio">Carregando...</div>
+      </div>
+
+    </section>
+
+    <section id="pagina-notificacao" class="pagina">
+      <div class="card" style="text-align:center;">
+        <p style="font-size:11px;color:var(--cinza-500);margin:0 0 2px;">ESTADO DO MARANHÃO — PREFEITURA MUNICIPAL DE IMPERATRIZ</p>
+        <p style="font-size:11px;color:var(--cinza-500);margin:0 0 8px;">SECRETARIA MUNICIPAL DE MEIO AMBIENTE E RECURSOS HÍDRICOS</p>
+        <h2 style="margin:0;">NOTIFICAÇÃO AMBIENTAL Nº <span id="numeroPrevisto">—</span></h2>
+      </div>
+
+      <div class="card">
+        <h2>Qualificação do Notificado</h2>
+
+        <div class="campo">
+          <label>01 - Nome</label>
+          <input id="notifRazaoSocial">
+        </div>
+
+        <div class="campo">
+          <label>02 - CPF/CNPJ</label>
+          <div style="display:flex;gap:6px;">
+            <input id="notifCpfCnpj" style="flex:1;">
+            <button type="button" onclick="buscarCnpj('notif')"
+              style="white-space:nowrap;padding:0 14px;border-radius:8px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:12px;">Buscar</button>
+          </div>
+          <div id="statusBuscaNotif" style="font-size:11px;color:var(--cinza-500);margin-top:4px;"></div>
+        </div>
+
+        <div class="campo">
+          <label>03 - Endereço da Atividade</label>
+          <div style="display:flex;gap:8px;">
+            <input id="notifLogradouro" placeholder="Logradouro" style="flex:3;">
+            <input id="notifNumeroEnd" placeholder="Nº" style="flex:1;">
+          </div>
+        </div>
+
+        <div class="campo"><label>04 - Bairro/Localidade</label><input id="notifBairro"></div>
+        <div class="campo"><label>05 - CEP</label><input id="notifCep"></div>
+        <div class="campo"><label>06 - Atividade Principal</label><input id="notifAtividade"></div>
+        <div class="campo"><label>07 - Contato/Representante</label><input id="notifContatoRepresentante"></div>
+
+        <input type="hidden" id="notifCidade" value="Imperatriz">
+        <input type="hidden" id="notifUf" value="MA">
+      </div>
+
+      <div class="card">
+        <h2>08 - Característica(s) da(s) Atividade(s)</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="notifCaract" value="Descarte irregular de resíduos" style="width:auto;">Descarte irregular de resíduos</label>
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="notifCaract" value="Efluentes em córrego / lançamento irregular" style="width:auto;">Efluentes em córrego / lançamento irregular</label>
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="notifCaract" value="Aterro/Construção em APP" style="width:auto;">Aterro/Construção em APP</label>
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="notifCaract" value="Poluição sonora" style="width:auto;">Poluição sonora</label>
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="notifCaract" value="Extração irregular" style="width:auto;">Extração irregular</label>
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="notifCaract" value="Atividade sem licença ambiental/AUTORIZAÇÃO" style="width:auto;">Atividade sem licença ambiental/AUTORIZAÇÃO</label>
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="notifCaract" value="Caracterização de área" style="width:auto;">Caracterização de área</label>
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="notifCaract" value="Maus-tratos a animais" style="width:auto;">Maus-tratos a animais</label>
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="notifCaract" value="Poluição atmosférica" style="width:auto;">Poluição atmosférica</label>
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="notifCaract" value="Embargo/ Auto de Infração" style="width:auto;">Embargo/ Auto de Infração</label>
+        </div>
+        <div class="campo" style="margin-top:10px;"><label>Outros</label><input id="notifCaractOutros"></div>
+      </div>
+
+      <div class="card">
+        <div class="campo">
+          <label>09 - Descrição do Fato Constatado</label>
+          <textarea id="notifConstatacao" rows="3"></textarea>
+          <button type="button" class="botao-ditado" onclick="iniciarDitado('notifConstatacao', this)">🎤 Ditar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="campo">
+          <label>10 - Leis Municipais que embasam a notificação</label>
+          <textarea id="notifLeis" rows="2">LEIS nº 1.423/11 e nº 1.424/11</textarea>
+        </div>
+        <div class="campo"><label>Outros</label><input id="notifLeisOutros"></div>
+      </div>
+
+      <div class="card">
+        <h2>11 - Prazo e Local para Comparecimento</h2>
+        <p style="font-size:12px;color:var(--cinza-500);line-height:1.6;">
+          O notificado deverá comparecer à SEMMARH para regularização e esclarecimentos:<br>
+          Rua Rafael de Almeida, nº 600, Bairro São Salvador.<br>
+          Comparecer portando documentos pessoais, procuração (caso seja representante) e a documentação do
+          empreendimento. O não comparecimento poderá acarretar em multa.
+        </p>
+        <div class="campo"><label>Horário de atendimento</label><input id="notifHorarioAtendimento" placeholder="Ex: 08:00 às 14:00 — Segunda a Sexta-feira"></div>
+        <div class="campo"><label>Data para comparecimento</label><input id="notifPrazoDate" type="date"></div>
+      </div>
+
+      <div class="card">
+        <div class="campo">
+          <label>12 - Observações</label>
+          <textarea id="notifDescricao" rows="2"></textarea>
+          <button type="button" class="botao-ditado" onclick="iniciarDitado('notifDescricao', this)">🎤 Ditar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="campo"><label>13 - Fiscal(s)</label><textarea id="notifFiscais" rows="2" placeholder="Nome(s) do(s) fiscal(is) responsável(is)"></textarea></div>
+        <p style="font-size:11px;color:var(--cinza-500);">14 - Data/Hora: preenchidos automaticamente ao salvar.</p>
+      </div>
+
+      <div class="card">
+        <h2>Recebimento</h2>
+        <div class="campo"><label>15 - Responsável pelo Recebimento</label><input id="notifNomeEmpreendedor"></div>
+        <div class="campo"><label>16 - CPF</label><input id="notifCpfResponsavel"></div>
+        <div class="campo"><label>17 - Data/Hora</label><input id="notifDataHoraRecebimento" type="datetime-local"></div>
+        <div class="campo">
+          <label>18 - Assinatura</label>
+          <div style="border:1px solid #d1d5db;border-radius:8px;overflow:hidden;touch-action:none;">
+            <canvas id="canvasAssinatura" style="width:100%;height:150px;display:block;background:#fff;"></canvas>
+          </div>
+          <div style="margin-top:6px;">
+            <button type="button" class="outline" style="padding:6px 14px;border-radius:8px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:12px;" onclick="limparAssinatura()">Limpar Assinatura</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div id="erroNotif" style="display:none;color:var(--vermelho-700);font-size:12px;margin-bottom:8px;"></div>
+        <div class="botoes-form">
+          <button class="primario" onclick="finalizarNotificacao()" id="btnFinalizarNotif">Salvar Notificação</button>
+          <button class="outline" onclick="limparFormNotif()">Limpar</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="pagina-historico" class="pagina">
+      <div class="card">
+        <h2>Histórico</h2>
+
+        <div class="hist-filtros-linha">
+          <input id="buscaHistorico" placeholder="Buscar por nome, nº da notificação..." oninput="paginaHistoricoAtual=1;renderizarHistorico()" onkeydown="if(event.key==='Enter'){paginaHistoricoAtual=1;renderizarHistorico();}">
+          <button type="button" class="btn-buscar" onclick="paginaHistoricoAtual=1;renderizarHistorico()">Buscar</button>
+          <select id="filtroStatusHistorico" onchange="paginaHistoricoAtual=1;renderizarHistorico()">
+            <option value="Todos">Todos os status</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Vencida">Vencida</option>
+            <option value="Compareceu">Compareceu</option>
+            <option value="Resolvido">Resolvido</option>
+          </select>
+          <input type="date" id="filtroDataInicioHistorico" title="Data início" onchange="paginaHistoricoAtual=1;renderizarHistorico()">
+          <input type="date" id="filtroDataFimHistorico" title="Data fim" onchange="paginaHistoricoAtual=1;renderizarHistorico()">
+        </div>
+
+        <div id="barraSelecaoHistorico" style="display:none;align-items:center;gap:10px;background:var(--verde-50);border:1px solid #bbf7d0;border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:12px;">
+          <span id="qtdSelecionadosHistorico">0 selecionado(s)</span>
+          <button class="outline" style="margin-left:auto;color:var(--vermelho-700);padding:6px 12px;border-radius:8px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:12px;" onclick="excluirSelecionadosHistorico()">Excluir Selecionados</button>
+          <button class="outline" style="padding:6px 12px;border-radius:8px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:12px;" onclick="limparSelecaoHistorico()">Cancelar</button>
+        </div>
+
+        <div class="hist-tabela-wrap">
+          <table class="hist-tabela">
+            <thead>
+              <tr>
+                <th><input type="checkbox" onchange="selecionarTodosHistorico(this)"></th>
+                <th>Nº</th>
+                <th>Empreendedor</th>
+                <th>Tipo</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabelaHistorico">
+              <tr><td colspan="7" class="vazio">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="paginacaoHistorico" class="hist-paginacao"></div>
+      </div>
+    </section>
+
+    <section id="pagina-cadastros" class="pagina">
+      <div class="card">
+        <h2 id="tituloFormCadastro">Novo Empreendedor</h2>
+        <input type="hidden" id="cadCpfCnpjOriginal">
+        <div class="campo">
+          <label>CPF/CNPJ *</label>
+          <div style="display:flex;gap:6px;">
+            <input id="cadCpfCnpj" placeholder="000.000.000-00" style="flex:1;">
+            <button type="button" onclick="buscarCnpj('cad')"
+              style="white-space:nowrap;padding:0 14px;border-radius:8px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:12px;">Buscar</button>
+          </div>
+          <div id="statusBuscaCad" style="font-size:11px;color:var(--cinza-500);margin-top:4px;"></div>
+        </div>
+        <div class="campo"><label>Razão Social</label><input id="cadRazaoSocial" placeholder="Nome da empresa"></div>
+        <div class="campo"><label>Logradouro</label><input id="cadLogradouro" placeholder="Rua, avenida..."></div>
+        <div class="campo"><label>Número</label><input id="cadNumero"></div>
+        <div class="campo"><label>Bairro</label><input id="cadBairro"></div>
+        <div class="campo"><label>Cidade</label><input id="cadCidade" value="Imperatriz"></div>
+        <div class="campo"><label>UF</label><input id="cadUf" value="MA" maxlength="2"></div>
+        <div class="campo"><label>Atividade</label><input id="cadAtividade" placeholder="Ramo de atividade"></div>
+        <div id="erroCadastro" style="display:none;color:var(--vermelho-700);font-size:12px;margin-bottom:8px;"></div>
+        <div class="botoes-form">
+          <button class="primario" onclick="salvarCadastro()">Salvar</button>
+          <button class="outline" onclick="limparFormCadastro()">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="busca">
+        <input id="buscaCadastro" placeholder="Buscar por CNPJ, razão social ou bairro..." oninput="filtrarCadastros()">
+      </div>
+      <div id="listaCadastros"></div>
+    </section>
+
+    <section id="pagina-comparecimento" class="pagina">
+      <div class="card">
+        <h2>Termo de Comparecimento Ambiental</h2>
+
+        <div class="campo"><label>Nº do Termo de Notificação</label><input id="compTermoNumero"></div>
+        <div class="campo"><label>Nº do Processo</label><input id="compProcessoNumero"></div>
+        <div class="campo"><label>Data do Comparecimento</label><input id="compDataComparecimento" type="date"></div>
+
+        <h2 style="margin-top:16px;">Responsável / Empresa</h2>
+        <div class="campo"><label>Nome do Responsável *</label><input id="compNomeResponsavel"></div>
+        <div class="campo"><label>CPF do Responsável</label><input id="compCpfResponsavel"></div>
+        <div class="campo"><label>Empresa *</label><input id="compNomeEmpresa"></div>
+        <div class="campo"><label>CNPJ da Empresa</label><input id="compCnpjEmpresa"></div>
+
+        <h2 style="margin-top:16px;">Procuração</h2>
+        <div class="campo">
+          <label>Comparecimento</label>
+          <select id="compTipoProcuracao" onchange="alternarBlocoProcurador()">
+            <option value="Próprio">Próprio (responsável legal)</option>
+            <option value="Procurador">Por procurador</option>
+          </select>
+        </div>
+        <div id="blocoProcurador" style="display:none;">
+          <div class="campo"><label>Nome do procurador</label><input id="compProcuradorNome1"></div>
+          <div class="campo"><label>Nome do 2º procurador (se houver)</label><input id="compProcuradorNome2"></div>
+          <div class="campo"><label>Poderes da procuração</label><textarea id="compPoderesProcuracao" rows="2"></textarea></div>
+          <div class="campo"><label>Qualificação do procurador</label><input id="compQualificacaoProcuracao"></div>
+          <div class="campo"><label>Nome de quem apresentou a procuração</label><input id="compNomeApresentante"></div>
+          <div class="campo">
+            <label style="display:flex;align-items:center;gap:6px;">
+              <input type="checkbox" id="compConstaNosAutos" style="width:auto;">Procuração consta nos autos
+            </label>
+          </div>
+          <div class="campo"><label>Data em que consta nos autos</label><input id="compDataConstaNosAutos" type="date"></div>
+          <div class="campo"><label>Observações sobre a procuração</label><textarea id="compObservacaoProcuracao" rows="2"></textarea></div>
+        </div>
+
+        <h2 style="margin-top:16px;">Declaração e Assinatura</h2>
+        <div class="campo">
+          <label>Declaração do comparecente</label>
+          <textarea id="compDeclaracao" rows="3"></textarea>
+          <button type="button" class="botao-ditado" onclick="iniciarDitado('compDeclaracao', this)">🎤 Ditar</button>
+        </div>
+        <div class="campo">
+          <label>Assinatura</label>
+          <div style="border:1px solid #d1d5db;border-radius:8px;overflow:hidden;touch-action:none;">
+            <canvas id="canvasAssinaturaComp" style="width:100%;height:150px;display:block;background:#fff;"></canvas>
+          </div>
+          <div style="margin-top:6px;">
+            <button type="button" onclick="limparAssinaturaComp()"
+              style="padding:6px 14px;border-radius:8px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:12px;">Limpar Assinatura</button>
+          </div>
+        </div>
+        <div class="campo"><label>Nome de quem assinou</label><input id="compNomeAssinante"></div>
+        <div class="campo"><label>CPF de quem assinou</label><input id="compCpfAssinante"></div>
+
+        <h2 style="margin-top:16px;">Conclusão</h2>
+        <div class="campo">
+          <label>Texto de conclusão</label>
+          <textarea id="compConclusaoTexto" rows="3"></textarea>
+          <button type="button" class="botao-ditado" onclick="iniciarDitado('compConclusaoTexto', this)">🎤 Ditar</button>
+        </div>
+        <div class="campo"><label>Empresa (conclusão)</label><input id="compEmpresaConclusao"></div>
+        <div class="campo"><label>CNPJ/CPF (conclusão)</label><input id="compCnpjCpfConclusao"></div>
+        <div class="campo">
+          <label>Observações finais</label>
+          <textarea id="compObservacaoConclusao" rows="2"></textarea>
+          <button type="button" class="botao-ditado" onclick="iniciarDitado('compObservacaoConclusao', this)">🎤 Ditar</button>
+        </div>
+        <div class="campo"><label>Prazo para cumprir obrigação (dias)</label><input id="compPrazoObrigacao" type="number"></div>
+        <div class="campo"><label>Data final</label><input id="compDataFinal" type="date"></div>
+
+        <h2 style="margin-top:16px;">Servidor Responsável</h2>
+        <div class="campo"><label>Matrícula</label><input id="compMatriculaServidor"></div>
+        <div class="campo"><label>Nome</label><input id="compNomeServidor"></div>
+        <div class="campo"><label>Função</label><input id="compFuncaoServidor"></div>
+
+        <div id="erroComparecimento" style="display:none;color:var(--vermelho-700);font-size:12px;margin:8px 0;"></div>
+        <div class="botoes-form">
+          <button class="primario" onclick="salvarComparecimentoUI()">Salvar</button>
+          <button class="outline" onclick="limparFormComparecimento()">Limpar</button>
+        </div>
+      </div>
+
+      <div class="busca">
+        <input id="buscaComparecimento" placeholder="Buscar por nº do termo, empresa ou responsável..." oninput="filtrarComparecimentos()">
+      </div>
+      <div id="listaComparecimentos"></div>
+    </section>
+
+    <section id="pagina-admin" class="pagina">
+      <div class="filtros">
+        <button class="ativo" onclick="mostrarAdminTab('dashboard', this)">Dashboard</button>
+        <button onclick="mostrarAdminTab('termos', this)">Termos</button>
+        <button onclick="mostrarAdminTab('relatorio', this)">Relatório</button>
+        <button onclick="mostrarAdminTab('usuarios', this)">Usuários</button>
+      </div>
+
+      <!-- Sub-aba: Dashboard -->
+      <div id="adminTab-dashboard" class="admin-tab">
+        <div class="kpis">
+          <div class="kpi verde"><div><div class="valor" id="adminKpiTotal">0</div><div class="rotulo">Total</div></div></div>
+          <div class="kpi amarelo"><div><div class="valor" id="adminKpiPendentes">0</div><div class="rotulo">Pendentes</div></div></div>
+          <div class="kpi azul"><div><div class="valor" id="adminKpiCompareceram">0</div><div class="rotulo">Compareceram</div></div></div>
+          <div class="kpi roxo"><div><div class="valor" id="adminKpiVencidos">0</div><div class="rotulo">Vencidos</div></div></div>
+        </div>
+        <div class="card">
+          <h2>Notificações por Status</h2>
+          <div id="graficoStatus"></div>
+        </div>
+        <div class="card">
+          <h2>Notificações por Bairro (top 5)</h2>
+          <div id="graficoBairro"></div>
+        </div>
+      </div>
+
+      <!-- Sub-aba: Termos -->
+      <div id="adminTab-termos" class="admin-tab" style="display:none;">
+        <div class="card">
+          <h2>Todos os Termos</h2>
+          <div id="listaAdminTermos" class="vazio">Carregando...</div>
+        </div>
+      </div>
+
+      <!-- Sub-aba: Relatório -->
+      <div id="adminTab-relatorio" class="admin-tab" style="display:none;">
+        <div class="card">
+          <h2>Relatório por Período</h2>
+          <div class="campo"><label>Data Início</label><input type="date" id="relDataInicio"></div>
+          <div class="campo"><label>Data Fim</label><input type="date" id="relDataFim"></div>
+          <div class="botoes-form">
+            <button class="primario" onclick="gerarRelatorio()">Gerar</button>
+            <button class="outline" onclick="exportarRelatorioTexto()">Exportar (.txt)</button>
+          </div>
+          <div id="resultadoRelatorio" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- Sub-aba: Usuários -->
+      <div id="adminTab-usuarios" class="admin-tab" style="display:none;">
+        <div class="card">
+          <h2>Novo Usuário</h2>
+          <div class="campo"><label>Usuário (login) *</label><input id="userUsername"></div>
+          <div class="campo"><label>Senha * (mínimo 8 caracteres)</label><input id="userSenha" type="password"></div>
+          <div class="campo"><label>Nome Completo *</label><input id="userNome"></div>
+          <div class="campo"><label>Matrícula</label><input id="userMatricula"></div>
+          <div class="campo">
+            <label>Perfil *</label>
+            <select id="userPerfil">
+              <option value="fiscal">Fiscal</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+          <div id="erroUsuario" style="display:none;color:var(--vermelho-700);font-size:12px;margin-bottom:8px;"></div>
+          <div class="botoes-form">
+            <button class="primario" onclick="criarUsuarioUI()">Criar Usuário</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Usuários Cadastrados</h2>
+          <div id="listaUsuarios" class="vazio">Carregando...</div>
+        </div>
+      </div>
+    </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ── Alterar / redefinir senha ── -->
+  <div id="modalSenha" class="modal-fundo" style="display:none;">
+    <div class="modal-caixa">
+      <h2 id="modalSenhaTitulo">Alterar minha senha</h2>
+      <div class="campo" id="modalSenhaAtualWrap"><label>Senha atual</label><input type="password" id="modalSenhaAtual" autocomplete="current-password"></div>
+      <div class="campo"><label>Nova senha (mínimo 8 caracteres)</label><input type="password" id="modalSenhaNova" autocomplete="new-password"></div>
+      <div class="campo"><label>Repita a nova senha</label><input type="password" id="modalSenhaRepete" autocomplete="new-password"></div>
+      <div id="modalSenhaErro" style="display:none;color:var(--vermelho-700);font-size:12px;margin-bottom:8px;"></div>
+      <div class="botoes-form">
+        <button class="primario" onclick="confirmarModalSenha()">Salvar</button>
+        <button class="outline" onclick="fecharModalSenha()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js?v=1"></script>
+  <script src="js/api.js?v=1"></script>
+  <script src="js/app.js?v=1"></script>
+</body>
+</html>
