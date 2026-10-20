@@ -62,32 +62,7 @@
         <div class="inicio-calendario-icon">📅</div>
       </div>
 
-      <div class="inicio-card" data-modulo="agenda">
-        <h2>📅 Agenda</h2>
-        <div class="agenda-form">
-          <input type="hidden" id="agendaIdEditando">
-          <div class="agenda-form-linha">
-            <input type="date" id="agendaData">
-            <input type="time" id="agendaHorario">
-          </div>
-          <input type="text" id="agendaDescricao" placeholder="Compromisso, lembrete ou anotação...">
-          <div class="botoes-form" style="margin-top:8px;">
-            <button class="inicio-acao-primaria" style="border:none;border-radius:8px;padding:10px;cursor:pointer;font-size:13px;" onclick="salvarCompromissoUI()" id="btnSalvarAgenda">Adicionar</button>
-            <button class="outline" style="border-radius:8px;padding:10px;cursor:pointer;font-size:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#e6f4ec;" onclick="limparFormAgenda()">Limpar</button>
-          </div>
-        </div>
-        <div id="listaAgenda" class="vazio" style="margin-top:12px;">Carregando...</div>
-      </div>
 
-      <div class="inicio-card" data-modulo="acoesRapidas">
-        <h2>Ações Rápidas</h2>
-        <div class="inicio-acoes">
-          <button class="inicio-acao-btn inicio-acao-primaria" onclick="mostrarPagina('notificacao')"><span>➕</span>Nova Notificação</button>
-          <button class="inicio-acao-btn" onclick="mostrarPagina('historico')"><span>📖</span>Ver Histórico</button>
-          <button class="inicio-acao-btn" data-modulo="comparecimento" onclick="mostrarPagina('comparecimento')"><span>🖊️</span>Comparecimento</button>
-          <button class="inicio-acao-btn" data-somente-admin onclick="mostrarPagina('admin')"><span>⚙️</span>Painel Admin</button>
-        </div>
-      </div>
 
       <div class="inicio-card" data-modulo="ultimasNotificacoes">
         <h2>Últimas Notificações</h2>
